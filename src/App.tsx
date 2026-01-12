@@ -126,8 +126,8 @@ function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1 className="title">kizNavi</h1>
-        <p className="subtitle">AmplifyとAgentCoreで構築しています</p>
+        <h1 className="title">NSキズナビ</h1>
+        <p className="subtitle">社内ナレッジを検索します</p>
       </header>
 
       <div className="message-area">
@@ -141,7 +141,7 @@ function App() {
                 {msg.isToolUsing && (
                   <span className={`tool-status ${msg.toolCompleted ? 'completed' : 'active'}`}>
                     {msg.toolCompleted ? '✓' : '⏳'} {msg.toolName}
-                    {msg.toolCompleted ? 'ツールを利用しました' : 'を利用中...'}
+                    {msg.toolCompleted ? 'プロジェクト履歴を参照しました。' : 'を利用中...'}
                   </span>
                 )}
                 {msg.content && !msg.isToolUsing && <ReactMarkdown>{msg.content}</ReactMarkdown>}
