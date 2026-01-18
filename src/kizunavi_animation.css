@@ -1,0 +1,46 @@
+/* ========= 初回挨拶（greet） ========= */
+/* 頭は軽く会釈 */
+.avatar.is-greet .kz .head  { animation: kz-head-bow 900ms ease-in-out 1; }
+/* 右腕だけ：ハイタッチ */
+.avatar.is-greet .kz .arm-r { animation: kz-arm-hightouch 650ms ease-out 1; }
+
+@keyframes kz-head-bow {
+  0%   { transform: rotate(0deg) translateY(0); }
+  35%  { transform: rotate(10deg) translateY(1px); }
+  70%  { transform: rotate(-3deg) translateY(0); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes kz-arm-hightouch {
+  0%   { transform: rotate(0deg);}
+  55%  { transform: rotate(-100deg);} /* あげる */
+  100% { transform: rotate(0deg);}    /* 下ろす */
+}
+
+/* ========= 回答  ========= */
+.avatar.is-answer .kz .head  { animation: kz-head-nod 650ms ease-in-out 2; }
+
+@keyframes kz-head-nod {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(5px); }
+  60%, 100%  { transform: translateY(0); }
+}
+
+/* ========= 考え中（thinking：止まる→ひらめき） ========= */
+.avatar.is-thinking .kz .head{
+  animation: kz-thinking-head-idea 0.5s ease-in-out forwards;
+}
+.avatar.is-thinking .kz .arm-r{
+  animation: kz-thinking-arm-idea 0.5s ease-in-out forwards;
+}
+
+
+@keyframes kz-thinking-head-idea{
+  0%, 45%   { transform: rotate(0deg)}
+  100%       { transform: rotate(-20deg)} /* 頭を斜めにうーん */
+}
+
+@keyframes kz-thinking-arm-idea{
+  0%, 55%   { transform: rotate(0deg); left: 43px;}   
+  100%      { transform: rotate(120deg); top: 44px; left: 53px; z-index: 999 }
+}

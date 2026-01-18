@@ -3,6 +3,13 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
+import './kizunavi_animation.css';
+import './kizunavi_icon.css';
+// 画像インポート
+import kizunavi_body from '../assets/kizunavi_body.png';
+import kizunavi_head from '../assets/kizunavi_head.png';
+import kizunavi_left from '../assets/kizunavi_left.png';
+import kizunavi_right from '../assets/kizunavi_rigth.png';
 
 // 環境変数から設定を取得
 const AGENT_ARN = import.meta.env.VITE_AGENT_ARN;
@@ -15,6 +22,8 @@ interface Message {
   isToolUsing?: boolean;
   toolCompleted?: boolean;
   toolName?: string;
+
+  avatarPulse?: 'greet' | 'answer' | 'think'| 'thinking' | null; // キズナビ君の状態
 }
 
 // メインのアプリケーションコンポーネント
@@ -38,7 +47,7 @@ function App() {
     const userMessage: Message = { id: crypto.randomUUID(), role: 'user', content: input.trim() };
 
     // メッセージ配列に追加（ユーザー発言 + 空のAI応答）
-    setMessages(prev => [...prev, userMessage, { id: crypto.randomUUID(), role: 'assistant', content: '' }]);
+    setMessages(prev => [...prev, userMessage, { id: crypto.randomUUID(), role: 'assistant', content: '', avatarPulse: 'thinking' }]);
     setInput('');
     setLoading(true);
 
@@ -82,7 +91,7 @@ function App() {
             if (savedBuffer) {
               msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], content: savedBuffer };
               toolIdx = msgs.length;
-              msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: '', isToolUsing: true, toolName: event.tool_name });
+              msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: '', isToolUsing: true, toolName: event.tool_name, avatarPulse: 'think' });
             } else {
               toolIdx = msgs.length - 1;
               msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], isToolUsing: true, toolName: event.tool_name };
@@ -100,7 +109,7 @@ function App() {
             const savedIdx = toolIdx;
             setMessages(prev => {
               const msgs = [...prev];
-              if (savedIdx >= 0 && savedIdx < msgs.length) msgs[savedIdx] = { ...msgs[savedIdx], toolCompleted: true };
+              if (savedIdx >= 0 && savedIdx < msgs.length) msgs[savedIdx] = { ...msgs[savedIdx], toolCompleted: true, avatarPulse: 'answer' };
               msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: event.data });
               return msgs;
             });
@@ -126,25 +135,39 @@ function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1 className="title">NSキズナビ</h1>
+        <div className="badge"></div>
+        <div className="brand">キズナビ君 ／ 新しいチャット</div>
         <p className="subtitle">社内ナレッジを検索します</p>
       </header>
 
       <div className="message-area">
         <div className="message-container">
-          {messages.map(msg => (
-            <div key={msg.id} className={`message-row ${msg.role}`}>
-              <div className={`bubble ${msg.role}`}>
-                {msg.role === 'assistant' && !msg.content && !msg.isToolUsing && (
-                  <span className="thinking">考え中…</span>
-                )}
-                {msg.isToolUsing && (
-                  <span className={`tool-status ${msg.toolCompleted ? 'completed' : 'active'}`}>
-                    {msg.toolCompleted ? '✓' : '⏳'} {msg.toolName}
-                    {msg.toolCompleted ? 'プロジェクト履歴を参照しました。' : 'を利用中...'}
-                  </span>
-                )}
-                {msg.content && !msg.isToolUsing && <ReactMarkdown>{msg.content}</ReactMarkdown>}
+          {messages.map((msg, index) => (
+            <div>
+              <div key={msg.id} className={`message-row ${msg.role}`}>
+                {/* キズナビ君の描画 */}
+                {msg.role === "assistant" && (index === 0 || messages[index-1].role !== "assistant")?
+                 <div className={`avatar ${msg.avatarPulse ? `is-${msg.avatarPulse}` : ""}`}>
+                    <div className='kz'>
+                      <img className='part head' src={kizunavi_head}></img>
+                      <img className='part body' src={kizunavi_body}></img>
+                      <img className='part arm-r' src={kizunavi_right}></img>
+                      <img className='part arm-l' src={kizunavi_left}></img>
+                    </div>
+                    </div>
+                :null}
+                <div className={`bubble ${msg.role}`}>
+                  {msg.role === 'assistant' && !msg.content && !msg.isToolUsing && (
+                    <span className="thinking">考え中…</span>
+                  )}
+                  {msg.isToolUsing && (
+                    <span className={`tool-status ${msg.toolCompleted ? 'completed' : 'active'}`}>
+                      {msg.toolCompleted ? '✓' : '⏳'} {msg.toolName}
+                      {msg.toolCompleted ? 'プロジェクト履歴を参照しました。' : 'を利用中...'}
+                    </span>
+                  )}
+                  {msg.content && !msg.isToolUsing && <ReactMarkdown>{msg.content}</ReactMarkdown>}
+                </div>
               </div>
             </div>
           ))}
@@ -154,7 +177,7 @@ function App() {
 
       <div className="form-wrapper">
         <form onSubmit={handleSubmit} className="form">
-          <input value={input} onChange={e => setInput(e.target.value)} placeholder="メッセージを入力..." disabled={loading} className="input" />
+          <textarea  value={input} onChange={e => setInput(e.target.value)} placeholder="メッセージを入力..." disabled={loading} className="input" />
           <button type="submit" disabled={loading || !input.trim()} className="button">
             {loading ? '⌛️' : '送信'}
           </button>

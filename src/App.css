@@ -1,15 +1,48 @@
 /* チャットアプリ全体のスタイル */
+:root {
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --user: #2563eb;
+  --bot: #f3f4f6;
+  --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+}
+
+.body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP",
+    sans-serif;
+}
 
 /* タイトルバー（フォームと同じテイスト） */
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  text-align: center;
-  padding: 16px 24px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP",
+    sans-serif;
+  padding: 12px 16px;
+  min-height: 60px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.title { font-size: 1.25rem; font-weight: 600; margin: 0; }
-.subtitle { font-size: 0.85rem; opacity: 0.9; margin: 4px 0 0; }
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin: 4px 0 0;
+}
+
+.badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #22c55e;
+}
 
 /* コンテナ */
 .container {
@@ -31,7 +64,7 @@
 
 .message-container {
   width: 100%;
-  max-width: 800px;
+  /* max-width: 800px; 画面いっぱい使う */
   margin: 0 auto;
 }
 
@@ -40,8 +73,12 @@
   display: flex;
   margin-bottom: 12px;
 }
-.message-row.user { justify-content: flex-end; }
-.message-row.assistant { justify-content: flex-start; }
+.message-row.user {
+  justify-content: flex-end;
+}
+.message-row.assistant {
+  justify-content: flex-start;
+}
 
 /* メッセージバブル */
 .bubble {
@@ -52,58 +89,87 @@
   font-size: 0.95rem;
 }
 .bubble.user {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--user);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+  border-color: rgba(37, 99, 235, 0.35);
+  border-bottom-right-radius: 6px;
 }
 .bubble.assistant {
-  background: #fff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--bot);
+  color: var(--text);
+  border-bottom-left-radius: 6px;
 }
 
 /* 思考中・ツール使用中 */
-.thinking { color: #9ca3af; font-style: italic; }
-.tool-status { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
-.tool-status.active { color: #667eea; }
-.tool-status.completed { color: #10b981; }
+.thinking {
+  color: #9ca3af;
+  font-style: italic;
+}
+.tool-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.tool-status.active {
+  color: #667eea;
+}
+.tool-status.completed {
+  color: #10b981;
+}
 
 /* 入力フォーム */
 .form-wrapper {
-  background: white;
-  border-top: 1px solid #e5e7eb;
-  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  background: #fff;
 }
 .form {
   display: flex;
   gap: 12px;
   width: 100%;
-  max-width: 800px;
   margin: 0 auto;
 }
 .input {
-  flex: 1;
-  padding: 12px 16px;
+  width: 100%;
+  resize: none;
+  min-height: 3lh;
+  max-height: 140px;
+  padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
   outline: none;
+  line-height: 1.1;
+  field-sizing: content;
 }
 .input:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 .button {
-  padding: 12px 28px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font: inherit;
+  border: 1px solid var(--border);
+  background: black;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 60px;
   color: #fff;
   border: none;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 650;
   font-size: 0.95rem;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
-.button:hover { transform: translateY(-1px); }
-.button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.button:hover {
+  transform: translateY(-1px);
+}
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}

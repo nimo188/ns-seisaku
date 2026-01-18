@@ -1,0 +1,63 @@
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+
+/* パーツ合成用コンテナ */
+.avatar .kz {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* パーツ共通 */
+.avatar .kz .part {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* パーツ画像の余白込みで収める */
+  display: block;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+/* まずは全部を同じ土台に */
+.avatar .kz .part {
+  object-fit: contain;
+  transform: scale(1); /* デフォルト */
+}
+
+/* パーツごとの大きさ・位置（※ユーザー指定を採用） */
+.avatar .kz .head{
+  scale: 0.5;
+  top: -20px;
+}
+
+.avatar .kz .arm-l{
+  scale: 0.2;
+  top: 44px;
+  left: 20px;
+}
+
+.avatar .kz .arm-r{
+  scale: 0.2;
+  top: 44px;
+  left: 43px;
+}
+
+.avatar .kz .body{
+  top: 15px;
+  scale: 0.3;
+}
+
+/* レイヤー順（下→上）
+   body → arms → head の順に上に重ねる */
+.avatar .kz .body  { z-index: 1; }
+.avatar .kz .arm-l { z-index: 2; transform-origin: 0% 0% !important; }
+.avatar .kz .arm-r { z-index: 3; transform-origin: 0% 0% !important; }
+.avatar .kz .head  { z-index: 4; transform-origin: 50% 70%; }
