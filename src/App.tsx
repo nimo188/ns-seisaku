@@ -23,7 +23,7 @@ interface Message {
   toolCompleted?: boolean;
   toolName?: string;
 
-  avatarPulse?: 'greet' | 'answer' | 'think'| 'thinking' | null; // キズナビ君の状態
+  avatarPulse?: 'greet' | 'answer' | 'thinking' | null; // キズナビ君の状態
 }
 
 // メインのアプリケーションコンポーネント
@@ -91,7 +91,7 @@ function App() {
             if (savedBuffer) {
               msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], content: savedBuffer };
               toolIdx = msgs.length;
-              msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: '', isToolUsing: true, toolName: event.tool_name, avatarPulse: 'think' });
+              msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: '', isToolUsing: true, toolName: event.tool_name, avatarPulse: 'thinking' });
             } else {
               toolIdx = msgs.length - 1;
               msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], isToolUsing: true, toolName: event.tool_name };
@@ -109,7 +109,16 @@ function App() {
             const savedIdx = toolIdx;
             setMessages(prev => {
               const msgs = [...prev];
-              if (savedIdx >= 0 && savedIdx < msgs.length) msgs[savedIdx] = { ...msgs[savedIdx], toolCompleted: true, avatarPulse: 'answer' };
+              if (savedIdx >= 0 && savedIdx < msgs.length){
+                msgs[savedIdx] = { ...msgs[savedIdx], toolCompleted: true};
+                // キズナビ君思考停止 & かわいく挨拶
+                for (let i = savedIdx - 1; i >= 0; i--) {
+                  if (msgs[i].avatarPulse === "thinking") {
+                    msgs[i] = { ...msgs[i], avatarPulse: "greet" };
+                    break;
+                  }
+                }
+              } 
               msgs.push({ id: crypto.randomUUID(), role: 'assistant', content: event.data });
               return msgs;
             });
@@ -131,6 +140,14 @@ function App() {
     setLoading(false);
   };
 
+  // Textareaのキーダウンハンドラ
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  if (e.key === "Enter" && e.shiftKey) {
+    e.preventDefault(); // 改行させない
+    handleSubmit(e as unknown as FormEvent); // 既存のhandleSubmitを使う場合
+  }
+};
+
   // チャットUI
   return (
     <div className="container">
@@ -146,16 +163,18 @@ function App() {
             <div>
               <div key={msg.id} className={`message-row ${msg.role}`}>
                 {/* キズナビ君の描画 */}
+                <div className={`avatar ${msg.avatarPulse ? `is-${msg.avatarPulse}` : ""}`}>
                 {msg.role === "assistant" && (index === 0 || messages[index-1].role !== "assistant")?
-                 <div className={`avatar ${msg.avatarPulse ? `is-${msg.avatarPulse}` : ""}`}>
                     <div className='kz'>
                       <img className='part head' src={kizunavi_head}></img>
                       <img className='part body' src={kizunavi_body}></img>
                       <img className='part arm-r' src={kizunavi_right}></img>
                       <img className='part arm-l' src={kizunavi_left}></img>
                     </div>
-                    </div>
                 :null}
+                </div>
+
+                {/* メッセージバブルの描画 */}
                 <div className={`bubble ${msg.role}`}>
                   {msg.role === 'assistant' && !msg.content && !msg.isToolUsing && (
                     <span className="thinking">考え中…</span>
@@ -177,7 +196,7 @@ function App() {
 
       <div className="form-wrapper">
         <form onSubmit={handleSubmit} className="form">
-          <textarea  value={input} onChange={e => setInput(e.target.value)} placeholder="メッセージを入力..." disabled={loading} className="input" />
+          <textarea  value={input} onChange={e => setInput(e.target.value)} placeholder="メッセージを入力...(Shift + Enter で送信)" disabled={loading} className="input" onKeyDown={handleKeyDown}/>
           <button type="submit" disabled={loading || !input.trim()} className="button">
             {loading ? '⌛️' : '送信'}
           </button>
