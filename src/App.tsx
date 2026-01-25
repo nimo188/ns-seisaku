@@ -185,7 +185,17 @@ function App() {
                       {msg.toolCompleted ? 'プロジェクト履歴を参照しました。' : 'を利用中...'}
                     </span>
                   )}
-                  {msg.content && !msg.isToolUsing && <ReactMarkdown>{msg.content}</ReactMarkdown>}
+                  {msg.content && !msg.isToolUsing && (
+                    <ReactMarkdown
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a {...props} target="_blank" rel="noopener noreferrer" />
+                        ),
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
               </div>
             </div>
