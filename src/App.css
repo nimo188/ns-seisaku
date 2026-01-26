@@ -118,6 +118,11 @@
   color: #10b981;
 }
 
+/* キズナビ君からの最初のメッセージ */
+.agree-message{
+  white-space: pre-line;
+}
+
 /* 入力フォーム */
 .form-wrapper {
   border-top: 1px solid var(--border);
@@ -132,6 +137,10 @@
   gap: 12px;
   width: 100%;
   margin: 0 auto;
+  min-height :100px;
+}
+.form :disabled {
+  background-color: #eee;
 }
 .input {
   width: 100%;
@@ -157,7 +166,7 @@
   background: black;
   border-radius: 10px;
   padding: 8px 10px;
-  min-width: 60px;
+  min-width:100px;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -169,6 +178,7 @@
   transform: translateY(-1px);
 }
 .button:disabled {
+  background: gray;
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;

@@ -13,6 +13,7 @@ import kizunavi_right from '../assets/kizunavi_rigth.png';
 
 // 環境変数から設定を取得
 const AGENT_ARN = import.meta.env.VITE_AGENT_ARN;
+const AGREED_KEY = "kizunavi_agreed_v1";
 
 // チャットメッセージの型定義
 interface Message {
@@ -26,11 +27,43 @@ interface Message {
   avatarPulse?: 'greet' | 'answer' | 'thinking' | null; // キズナビ君の状態
 }
 
+// キズナビ君同意文
+const AGREE_MESSAGE =` こんにちは！ぼくはキズナビだよ。
+ぼくはNotionに書いてくれた、みんなの経歴が情報源になっているんだ！
+質問をする前に、君の経歴はちゃんと記入してくれているかな？
+ぼくを成長させるためにも、しっかりと入力をしてから質問してね！
+
+`
+
 // メインのアプリケーションコンポーネント
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // 同意（経歴情報を再進化したかのチェック）
+  const [agreed, setAgreed] = useState(false);
+  const [agreeChecked, setAgreeChecked] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(AGREED_KEY) === "true";
+    setAgreed(saved);
+    setAgreeChecked(saved); // 同意済みならチェックも付けておくと自然
+  }, []);
+
+  const onAgreeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.checked;
+    setAgreeChecked(v);
+
+    if (v) {
+      localStorage.setItem(AGREED_KEY, "true");
+      setAgreed(true);
+    } else {
+      localStorage.removeItem(AGREED_KEY);
+      setAgreed(false);
+    }
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // メッセージ追加時に自動スクロール
@@ -41,6 +74,7 @@ function App() {
   // フォーム送信処理
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!agreed) return;
     if (!input.trim() || loading) return;
 
     // ユーザーメッセージを作成
@@ -156,9 +190,41 @@ function App() {
         <div className="brand">キズナビ君 ／ 新しいチャット</div>
         <p className="subtitle">社内ナレッジを検索します</p>
       </header>
-
+      
       <div className="message-area">
         <div className="message-container">
+
+          {/* 初回の同意メッセージ （Notionの経歴情報が最新かどうかを確認）*/}
+            <div className="message-row assistant">
+              <div className="avatar is-greet">
+                <div className="kz">
+                  <img className="part head" src={kizunavi_head} />
+                  <img className="part body" src={kizunavi_body} />
+                  <img className="part arm-r" src={kizunavi_right} />
+                  <img className="part arm-l" src={kizunavi_left} />
+                </div>
+              </div>
+
+              <div className="bubble assistant">
+                {/* キズナビ君から経歴更新してねのお願い */}
+                <span className="agree-message">{AGREE_MESSAGE}</span>
+                {/* Notion社員一覧のリンク */}
+                <a href="https://www.notion.so/northsand/77dd8126faa74963b36d286502560dc4?v=62ad8b36f63841798f83a0585b4aab3f" target="_blank">Notion社員一覧</a>
+                <br/><br/>
+
+                {/* 最新化しているかどうかのチェックボックス */}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={agreeChecked}
+                    onChange={onAgreeChange}
+                  />
+                  Notionの経歴情報は最新です。
+                </label>
+              </div>
+            </div>
+
+          {/*AIからのレスポンスと、自信が入力したメッセージの描画 */}
           {messages.map((msg, index) => (
             <div>
               <div key={msg.id} className={`message-row ${msg.role}`}>
@@ -206,8 +272,19 @@ function App() {
 
       <div className="form-wrapper">
         <form onSubmit={handleSubmit} className="form">
-          <textarea  value={input} onChange={e => setInput(e.target.value)} placeholder="メッセージを入力...(Shift + Enter で送信)" disabled={loading} className="input" onKeyDown={handleKeyDown}/>
-          <button type="submit" disabled={loading || !input.trim()} className="button">
+          <textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="メッセージを入力...(Shift + Enter で送信)"
+            disabled={loading || !agreed}
+            className="input"
+            onKeyDown={handleKeyDown}
+          />
+
+          <button
+            type="submit"
+            disabled={loading || !agreed || !input.trim()}
+            className="button">
             {loading ? '⌛️' : '送信'}
           </button>
         </form>
